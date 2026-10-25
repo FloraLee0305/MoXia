@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>墨匣 · 三合一创作工作台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink-950: #0d0b09;
+  --ink-900: #16130f;
+  --ink-800: #1f1a14;
+  --ink-700: #2a231b;
+  --ink-600: #3a3127;
+  --ink-500: #4d4135;
+  --gold-100: #f5e6c8;
+  --gold-300: #e6c478;
+  --gold-500: #c9a24a;
+  --gold-700: #9a7a2e;
+  --vermilion: #c7443a;
+  --jade: #4a8c6f;
+  --paper: #f0e8d8;
+  --muted: #8a7d6b;
+  --glow: rgba(201, 162, 74, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--ink-950);
+  color: var(--paper);
+  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* 宣纸纹理背景 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 10%, rgba(201, 162, 74, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(199, 68, 58, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container { max-width: 1400px; margin: 0 auto; padding: 0 40px; position: relative; z-index: 1; }
+
+/* ========== 顶栏 ========== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--ink-700);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-mark {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--gold-500), var(--gold-700));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 900;
+  font-size: 24px;
+  color: var(--ink-950);
+  box-shadow: 0 0 24px var(--glow);
+}
+
+.brand-text h1 {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 4px;
+  color: var(--gold-100);
+}
+
+.brand-text p {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 2px;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.mode-switch {
+  display: flex;
+  background: var(--ink-800);
+  border: 1px solid var(--ink-600);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 2px;
+}
+
+.mode-btn {
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 7px;
+  transition: all 0.3s;
+  letter-spacing: 1px;
+}
+
+.mode-btn.active {
+  background: var(--gold-500);
+  color: var(--ink-950);
+  font-weight: 600;
+}
+
+.mode-btn:not(.active):hover { color: var(--paper); background: var(--ink-700); }
+
+.icon-btn {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--ink-600);
+  background: var(--ink-800);
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+.icon-btn:hover { color: var(--gold-300); border-color: var(--gold-700); }
+
+/* ========== 英雄区 ========== */
+.hero {
+  padding: 60px 0 40px;
+  text-align: center;
+}
+
+.hero-tag {
+  display: inline-block;
+  padding: 6px 16px;
+  background: rgba(201, 162, 74, 0.1);
+  border: 1px solid var(--gold-700);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--gold-300);
+  letter-spacing: 3px;
+  margin-bottom: 24px;
+}
+
+.hero h2 {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  background: linear-gradient(180deg, var(--gold-100) 0%, var(--gold-500) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 600px;
+  margin: 0 auto 32px;
+}
+
+/* ========== 创作流程管道 ========== */
+.pipeline {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0;
+  margin: 40px 0 60px;
+  position: relative;
+}
+
+.pipe-node {
+  flex: 1;
+  max-width: 200px;
+  text-align: center;
+  position: relative;
+}
+
+.pipe-node .node-icon {
+  width: 64px; height: 64px;
+  margin: 0 auto 12px;
+  background: var(--ink-800);
+  border: 1.5px solid var(--ink-600);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  position: relative;
+  z-index: 2;
+  transition: all 0.4s;
+}
+
+.pipe-node:hover .node-icon {
+  border-color: var(--gold-500);
+  box-shadow: 0 0 30px var(--glow);
+  transform: translateY(-4px);
+}
+
+.pipe-node .node-label {
+  font-size: 14px;
+  color: var(--paper);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.pipe-node .node-desc {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 0 8px;
+}
+
+.pipe-node .step-num {
+  position: absolute;
+  top: -8px;
+  right: calc(50% - 44px);
+  width: 22px; height: 22px;
+  background: var(--gold-500);
+  color: var(--ink-950);
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.pipe-connector {
+  flex: 0 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  top: 0;
+}
+
+.pipe-connector::before {
+  content: '';
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--ink-600), var(--gold-700), var(--ink-600));
+}
+
+.pipe-connector::after {
+  content: '→';
+  position: absolute;
+  color: var(--gold-500);
+  font-size: 18px;
+  background: var(--ink-950);
+  padding: 0 6px;
+}
+
+/* ========== 三种创作模式卡片 ========== */
+.section-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gold-100);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 28px;
+  background: var(--gold-500);
+  border-radius: 2px;
+}
+
+.section-sub {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 32px;
+  padding-left: 16px;
+}
+
+.modes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 60px;
+}
+
+.mode-card {
+  background: var(--ink-900);
+  border: 1px solid var(--ink-700);
+  border-radius: 16px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mode-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent, var(--gold-500));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s;
+}
+
+.mode-card:hover {
+  border-color: var(--accent, var(--gold-500));
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 40px var(--card-glow, var(--glow));
+}
+
+.mode-card:hover::before { transform: scaleX(1); }
+
+.mode-card .card-icon {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 20px;
+  background: var(--accent-bg, rgba(201, 162, 74, 0.12));
+  border: 1px solid var(--accent-border, var(--gold-700));
+}
+
+.mode-card h3 {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--paper);
+  margin-bottom: 8px;
+}
+
+.mode-card .card-en {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.mode-card p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.mode-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.mode-features li {
+  font-size: 13px;
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mode-features li::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent, var(--gold-500));
+  flex-shrink: 0;
+}
+
+.card-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+  border-top: 1px solid var(--ink-700);
+}
+
+.card-cta span {
+  font-size: 13px;
+  color: var(--accent, var(--gold-300));
+  font-weight: 600;
+}
+
+.card-cta .arrow {
+  transition: transform 0.3s;
+  color: var(--accent, var(--gold-500));
+}
+
+.mode-card:hover .arrow { transform: translateX(6px); }
+
+/* 三种模式的强调色 */
+.mode-zhihu { --accent: var(--gold-500); --accent-bg: rgba(201, 162, 74, 0.12); --accent-border: var(--gold-700); --card-glow: rgba(201, 162, 74, 0.12); }
+.mode-drama { --accent: var(--vermilion); --accent-bg: rgba(199, 68, 58, 0.12); --accent-border: #8a302a; --card-glow: rgba(199, 68, 58, 0.12); }
+.mode-yiciyuan { --accent: var(--jade); --accent-bg: rgba(74, 140, 111, 0.12); --accent-border: #2e5c48; --card-glow: rgba(74, 140, 111, 0.12); }
+
+/* ========== 创作工作台示例 ========== */
+.workspace-demo {
+  background: var(--ink-900);
+  border: 1px solid var(--ink-700);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 60px;
+}
+
+.ws-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: var(--ink-800);
+  border-bottom: 1px solid var(--ink-700);
+}
+
+.ws-dot { width: 12px; height: 12px; border-radius: 50%; }
+.ws-dot:nth-child(1) { background: #c7443a; }
+.ws-dot:nth-child(2) { background: #c9a24a; }
+.ws-dot:nth-child(3) { background: #4a8c6f; }
+
+.ws-title {
+  margin-left: 12px;
+  font-size: 13px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.ws-body {
+  display: grid;
+  grid-template-columns: 240px 1fr 280px;
+  min-height: 460px;
+}
+
+/* 左侧：记忆面板 */
+.ws-memory {
+  border-right: 1px solid var(--ink-700);
+  padding: 20px;
+  background: var(--ink-950);
+}
+
+.ws-memory h4 {
+  font-size: 12px;
+  color: var(--gold-300);
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.memory-tree {
+  list-style: none;
+  font-size: 12px;
+}
+
+.memory-tree li {
+  padding: 6px 0;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.memory-tree li:hover { color: var(--paper); }
+
+.memory-tree li.active {
+  color: var(--gold-300);
+  background: rgba(201, 162, 74, 0.08);
+  margin: 0 -8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.memory-tree .branch { padding-left: 20px; }
+.memory-tree .file::before {
+  content: '📄';
+  font-size: 10px;
+}
+.memory-tree .folder::before {
+  content: '📁';
+  font-size: 10px;
+}
+
+/* 中间：创作区 */
+.ws-canvas {
+  padding: 28px;
+  overflow-y: auto;
+}
+
+.canvas-stage {
+  margin-bottom: 24px;
+}
+
+.stage-label {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--gold-300);
+  background: rgba(201, 162, 74, 0.1);
+  padding: 4px 12px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.inspiration-box {
+  background: var(--ink-800);
+  border: 1px dashed var(--ink-500);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.inspiration-box .label {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.inspiration-box .text {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 16px;
+  color: var(--paper);
+  line-height: 1.7;
+}
+
+.outline-block {
+  background: var(--ink-800);
+  border: 1px solid var(--ink-600);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.outline-block h5 {
+  font-size: 14px;
+  color: var(--gold-300);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.outline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ink-700);
+}
+
+.outline-item:last-child { border-bottom: none; }
+
+.outline-num {
+  width: 22px; height: 22px;
+  background: var(--ink-700);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.outline-content { flex: 1; }
+.outline-content .title { font-size: 13px; color: var(--paper); font-weight: 500; }
+.outline-content .desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.user-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.act-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid var(--ink-500);
+  background: var(--ink-700);
+  color: var(--paper);
+  transition: all 0.2s;
+}
+
+.act-btn.primary {
+  background: var(--gold-500);
+  color: var(--ink-950);
+  border-color: var(--gold-500);
+  font-weight: 600;
+}
+
+.act-btn:hover { opacity: 0.85; }
+
+/* 右侧：AI 助手面板 */
+.ws-assistant {
+  border-left: 1px solid var(--ink-700);
+  padding: 20px;
+  background: var(--ink-950);
+}
+
+.ws-assistant h4 {
+  font-size: 12px;
+  color: var(--gold-300);
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.ai-msg {
+  background: var(--ink-800);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.ai-msg .who {
+  font-size: 10px;
+  color: var(--jade);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.ai-msg.user {
+  background: rgba(74, 140, 111, 0.1);
+  border: 1px solid rgba(74, 140, 111, 0.3);
+}
+
+.ai-msg.user .who { color: var(--gold-300); }
+
+.ai-input {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.ai-input input {
+  flex: 1;
+  background: var(--ink-800);
+  border: 1px solid var(--ink-600);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--paper);
+  font-size: 12px;
+  outline: none;
+}
+
+.ai-input button {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: var(--gold-500);
+  color: var(--ink-950);
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* ========== 底部信息 ========== */
+.footer-note {
+  text-align: center;
+  padding: 40px 0 60px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.footer-note .sep {
+  color: var(--ink-600);
+  margin: 0 12px;
+}
+
+/* 响应式 */
+@media (max-width: 1100px) {
+  .modes-grid { grid-template-columns: 1fr; }
+  .ws-body { grid-template-columns: 1fr; }
+  .ws-memory, .ws-assistant { display: none; }
+  .hero h2 { font-size: 36px; }
+}
+
+/* 入场动画 */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.topbar, .hero, .pipeline, .modes-grid, .workspace-demo {
+  animation: fadeUp 0.6s ease both;
+}
+.hero { animation-delay: 0.1s; }
+.pipeline { animation-delay: 0.2s; }
+.modes-grid { animation-delay: 0.3s; }
+.workspace-demo { animation-delay: 0.4s; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- 顶栏 -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">墨</div>
+      <div class="brand-text">
+        <h1>墨 匣</h1>
+        <p>INK · BOX · 三合一创作工作台</p>
+      </div>
+    </div>
+    <nav class="nav-actions">
+      <div class="mode-switch">
+        <button class="mode-btn active">全部</button>
+        <button class="mode-btn">网文</button>
+        <button class="mode-btn">漫剧</button>
+        <button class="mode-btn">文游</button>
+      </div>
+      <button class="icon-btn" title="设置">⚙</button>
+      <button class="icon-btn" title="作品库">📚</button>
+    </nav>
+  </header>
+
+  <!-- 英雄区 -->
+  <section class="hero">
+    <span class="hero-tag">人机共创 · 灵感驱动</span>
+    <h2>把一个灵感，<br>打磨成完整的作品</h2>
+    <p>输入你的灵感，AI 帮你补全大纲并生成内容。你在过程中观察、选择、调整，最终打造出知乎网文、漫剧剧本或易次元文游。</p>
+  </section>
+
+  <!-- 创作流程管道 -->
+  <section class="pipeline">
+    <div class="pipe-node">
+      <span class="step-num">1</span>
+      <div class="node-icon">💡</div>
+      <div class="node-label">输入灵感</div>
+      <div class="node-desc">一句话或一个片段</div>
+    </div>
+    <div class="pipe-connector"></div>
+    <div class="pipe-node">
+      <span class="step-num">2</span>
+      <div class="node-icon">🗺</div>
+      <div class="node-label">补全大纲</div>
+      <div class="node-desc">AI 发散方向，你选择</div>
+    </div>
+    <div class="pipe-connector"></div>
+    <div class="pipe-node">
+      <span class="step-num">3</span>
+      <div class="node-icon">✍</div>
+      <div class="node-label">生成内容</div>
+      <div class="node-desc">按大纲逐段生成</div>
+    </div>
+    <div class="pipe-connector"></div>
+    <div class="pipe-node">
+      <span class="step-num">4</span>
+      <div class="node-icon">🔍</div>
+      <div class="node-label">观察调整</div>
+      <div class="node-desc">你审核、修改、重写</div>
+    </div>
+    <div class="pipe-connector"></div>
+    <div class="pipe-node">
+      <span class="step-num">5</span>
+      <div class="node-icon">📦</div>
+      <div class="node-label">完成作品</div>
+      <div class="node-desc">导出成稿交付</div>
+    </div>
+  </section>
+
+  <!-- 三种创作模式 -->
+  <h3 class="section-title">三种创作模式</h3>
+  <p class="section-sub">同一套底层工作流，三种平台特化输出</p>
+
+  <div class="modes-grid">
+    <!-- 知乎网文 -->
+    <div class="mode-card mode-zhihu">
+      <div class="card-icon">📖</div>
+      <h3>知乎网文</h3>
+      <div class="card-en">ZHIHU · WEB NOVEL</div>
+      <p>短篇情绪流创作，聚焦开头钩子与反转震撼，适配知乎盐言风格。</p>
+      <ul class="mode-features">
+        <li>6 种目标情绪驱动</li>
+        <li>10 大题材包任选</li>
+        <li>盐言风格特化提示词</li>
+        <li>去 AI 味三层质检</li>
+      </ul>
+      <div class="card-cta">
+        <span>开始创作网文</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+
+    <!-- 漫剧剧本 -->
+    <div class="mode-card mode-drama">
+      <div class="card-icon">🎬</div>
+      <h3>漫剧剧本</h3>
+      <div class="card-en">COMIC · DRAMA</div>
+      <p>从故事到分镜，含视觉设定与连续性锁，解决跨镜角色一致性。</p>
+      <ul class="mode-features">
+        <li>剧本+视觉设定五文档</li>
+        <li>连续性锁防造型漂移</li>
+        <li>分镜三段式设计</li>
+        <li>图片/视频提示词生成</li>
+      </ul>
+      <div class="card-cta">
+        <span>开始创作漫剧</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+
+    <!-- 易次元文游 -->
+    <div class="mode-card mode-yiciyuan">
+      <div class="card-icon">🎮</div>
+      <h3>易次元文游</h3>
+      <div class="card-en">YICIYUAN · TEXT GAME</div>
+      <p>主线 + 多支线的分支叙事，支持选项节点与多结局，适配文游剧本。</p>
+      <ul class="mode-features">
+        <li>主线 + N 支线结构</li>
+        <li>选项节点自动插入</li>
+        <li>多结局（HE/BE/TE）</li>
+        <li>立绘/CG 标注规范</li>
+      </ul>
+      <div class="card-cta">
+        <span>开始创作文游</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 创作工作台示例 -->
+  <h3 class="section-title">创作工作台</h3>
+  <p class="section-sub">左侧文件记忆 · 中间创作画布 · 右侧 AI 助手，全程人机协作</p>
+
+  <div class="workspace-demo">
+    <div class="ws-header">
+      <span class="ws-dot"></span>
+      <span class="ws-dot"></span>
+      <span class="ws-dot"></span>
+      <span class="ws-title">moxia://projects/重生之新媒体逆袭/大纲</span>
+    </div>
+    <div class="ws-body">
+      <!-- 左侧记忆 -->
+      <aside class="ws-memory">
+        <h4>作品记忆</h4>
+        <ul class="memory-tree">
+          <li class="folder active">📁 重生之新媒体逆袭</li>
+          <li class="branch folder">📁 设定</li>
+          <li class="branch file">世界观.md</li>
+          <li class="branch file">角色.md</li>
+          <li class="branch file">关系.md</li>
+          <li class="branch folder">📁 大纲</li>
+          <li class="branch file active">大纲.md</li>
+          <li class="branch file">细纲_第1章.md</li>
+          <li class="branch folder">📁 正文</li>
+          <li class="branch file">第1章_开局.md</li>
+          <li class="branch folder">📁 追踪</li>
+          <li class="branch file">伏笔.md</li>
+          <li class="branch file">时间线.md</li>
+        </ul>
+      </aside>
+
+      <!-- 中间画布 -->
+      <main class="ws-canvas">
+        <div class="canvas-stage">
+          <span class="stage-label">灵感</span>
+          <div class="inspiration-box">
+            <div class="label">你的灵感</div>
+            <div class="text">"一个过气的新媒体运营重生回 2018 年，用未来经验帮文工团做账号逆袭。"</div>
+          </div>
+        </div>
+
+        <div class="canvas-stage">
+          <span class="stage-label">AI 补全的大纲（待你确认）</span>
+          <div class="outline-block">
+            <h5>主线章节规划</h5>
+            <div class="outline-item">
+              <div class="outline-num">1</div>
+              <div class="outline-content">
+                <div class="title">开局 · 垫底的新媒体</div>
+                <div class="desc">文工团新媒体评比垫底，主角重生归来立下下周榜首的 flag</div>
+              </div>
+            </div>
+            <div class="outline-item">
+              <div class="outline-num">2</div>
+              <div class="outline-content">
+                <div class="title">第一波 · 借势热点</div>
+                <div class="desc">利用 2018 年即将爆发的热点，第一条视频破圈</div>
+              </div>
+            </div>
+            <div class="outline-item">
+              <div class="outline-num">3</div>
+              <div class="outline-content">
+                <div class="title">阻力 · 内部质疑</div>
+                <div class="desc">同事不看好、上级施压，主角用数据说话</div>
+              </div>
+            </div>
+            <div class="user-actions">
+              <button class="act-btn primary">确认大纲，开始写正文</button>
+              <button class="act-btn">调整方向</button>
+              <button class="act-btn">换一个版本</button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- 右侧助手 -->
+      <aside class="ws-assistant">
+        <h4>墨匣助手</h4>
+        <div class="ai-msg">
+          <div class="who">AI 助手</div>
+          根据你的灵感，我补全了 3 个方向。当前展示的是「逆袭打脸」路线，情绪目标为爽感释放。需要我展示其他方向吗？
+        </div>
+        <div class="ai-msg user">
+          <div class="who">你</div>
+          这个方向可以，但第 2 章的热点能不能换成更贴近军宣的？
+        </div>
+        <div class="ai-msg">
+          <div class="who">AI 助手</div>
+          好的。我把第 2 章改为：借"八一建军节"节点做一条燃向混剪，配合文工团的演出素材，既贴合身份又容易破圈。已更新大纲。
+        </div>
+        <div class="ai-input">
+          <input type="text" placeholder="和助手对话…" />
+          <button>↑</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- 底部 -->
+  <div class="footer-note">
+    墨匣 · 三合一创作工作台 <span class="sep">|</span> 知乎网文 <span class="sep">·</span> 漫剧剧本 <span class="sep">·</span> 易次元文游 <span class="sep">|</span> 灵感驱动 · 人机共创
+  </div>
+
+</div>
+
+</body>
+</html>

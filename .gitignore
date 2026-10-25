@@ -1,0 +1,18 @@
+# 参考项目（外部克隆，不纳入版本管理）
+novel-ai-toolbox/
+novel-ai-toolbox.zip
+
+# 临时文件
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+.vscode/
+*.swp
